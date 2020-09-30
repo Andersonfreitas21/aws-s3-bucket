@@ -16,8 +16,8 @@ public class AmazonConfig {
     private static final String REGION = "us-east-1";
 
     static {
-        ACCESSKEY = "AKIAI7TM2L7XKL6RCPNA";
-        SECRETKEY = "PuFDxUYbcbF40npz7ftE2mVBT2/Y4XSmwZwSWprB";
+        ACCESSKEY = "your access";
+        SECRETKEY = "your secret";
     }
 
     @Bean
