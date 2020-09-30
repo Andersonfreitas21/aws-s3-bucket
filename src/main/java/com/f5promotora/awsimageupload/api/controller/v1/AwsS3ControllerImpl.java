@@ -1,0 +1,55 @@
+package com.f5promotora.awsimageupload.api.controller.v1;
+
+import com.f5promotora.awsimageupload.api.controller.AwsS3Controller;
+import com.f5promotora.awsimageupload.api.domain.service.v1.AwsS3ServiceImpl;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
+
+@RestController
+@RequestMapping("api/v1")
+@CrossOrigin("*")
+public class AwsS3ControllerImpl implements AwsS3Controller {
+
+    private final AwsS3ServiceImpl awsS3ServiceImpl;
+
+    @Autowired
+    public AwsS3ControllerImpl(AwsS3ServiceImpl awsS3ServiceImpl) {
+        this.awsS3ServiceImpl = awsS3ServiceImpl;
+    }
+
+    @Override
+    @PostMapping(
+            path = "/upload",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ApiOperation(httpMethod = "POST", value = "Uploading objects to S3 AWS bucket")
+    public void upload(@RequestParam("file") MultipartFile file) {
+        awsS3ServiceImpl.upload(file);
+    }
+
+    @Override
+    @GetMapping("/download")
+    @ApiOperation(httpMethod = "GET", value = "Download the file by name in the bucket.", consumes = "multipart/form-data")
+    public ResponseEntity<byte[]> download(@RequestParam("fileName") String fileName) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("application", "force-download"));
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="+fileName);
+        return ResponseEntity.ok().headers(headers).body(awsS3ServiceImpl.download(fileName));
+    }
+
+    @GetMapping
+    @ApiOperation(httpMethod = "GET", value = "Get list all objects to bucket name.")
+    public ResponseEntity<List<String>> getObjectsList(@RequestParam("bucketName") String bucketName) throws IOException {
+        return ResponseEntity.ok().body(awsS3ServiceImpl.getObjectsList(bucketName));
+    }
+
+}
