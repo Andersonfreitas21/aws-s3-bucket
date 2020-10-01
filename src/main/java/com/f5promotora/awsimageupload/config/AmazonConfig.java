@@ -13,11 +13,12 @@ public class AmazonConfig {
 
     private static final String ACCESSKEY;
     private static final String SECRETKEY;
-    private static final String REGION = "us-east-1";
+    private static final String REGION ;
 
     static {
-        ACCESSKEY = "your access";
-        SECRETKEY = "your secret";
+        ACCESSKEY = "";
+        SECRETKEY = "";
+        REGION = "";
     }
 
     @Bean

@@ -4,18 +4,24 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
-import com.amazonaws.util.IOUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class FileStore {
+
     private final AmazonS3 s3;
 
     @Autowired
@@ -42,38 +48,31 @@ public class FileStore {
         }
     }
 
-    public byte[] download(String path, String key) throws IOException {
+    public Resource download(String path, String key) {
         S3Object object = s3.getObject(path, key);
-        S3ObjectInputStream s3is = object.getObjectContent();
-        FileOutputStream fos = new FileOutputStream(new File(key));
-        try {
+        try (S3ObjectInputStream s3is = object.getObjectContent(); ByteArrayOutputStream fos = new ByteArrayOutputStream()) {
             byte[] read_buf = new byte[1024];
-            int read_len = 0;
+            int read_len;
             while ((read_len = s3is.read(read_buf)) > 0) {
                 fos.write(read_buf, 0, read_len);
             }
-
-            return IOUtils.toByteArray(object.getObjectContent());
+            return new ByteArrayResource(fos.toByteArray());
         } catch (AmazonServiceException | IOException e) {
             throw new IllegalStateException("Failed to download file to s3", e);
-        } finally {
-            s3is.close();
-            fos.close();
         }
     }
 
-    public List<String> getObjectsList(String bucketName) throws IOException, AmazonServiceException, SdkClientException {
+    public List<S3ObjectSummary> getObjectsList(String bucketName) throws SdkClientException {
         ListObjectsV2Request req = new ListObjectsV2Request().withBucketName(bucketName);
         ListObjectsV2Result result;
-        List<String> keys = new ArrayList<>();
+        List<S3ObjectSummary> s3ObjectSummaries = new ArrayList<>();
         do {
             result = s3.listObjectsV2(req);
-
             for (S3ObjectSummary objectSummary : result.getObjectSummaries()) {
-                System.out.printf(" - %s (size: %d)\n", objectSummary.getKey(), objectSummary.getSize());
-                keys.add(objectSummary.getKey());
+                s3ObjectSummaries.add(objectSummary);
+                log.info(" - {} (size: {})", objectSummary.getKey(), objectSummary.getSize());
             }
         } while (result.isTruncated());
-        return keys;
+        return s3ObjectSummaries;
     }
 }

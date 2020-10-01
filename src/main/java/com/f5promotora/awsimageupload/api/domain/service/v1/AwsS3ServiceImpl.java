@@ -1,10 +1,12 @@
 package com.f5promotora.awsimageupload.api.domain.service.v1;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.f5promotora.awsimageupload.api.domain.service.AwsS3Service;
 import com.f5promotora.awsimageupload.bucket.BucketName;
 import com.f5promotora.awsimageupload.filestore.FileStore;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,18 +40,18 @@ public class AwsS3ServiceImpl implements AwsS3Service {
     }
 
     @Override
-    public byte[] download(String fileName) {
+    public Resource download(String fileName) {
         String path = String.format("%s",
                 BucketName.PROFILE_IMAGE.getBucketName());
         try {
             return fileStore.download(path, fileName);
-        } catch (AmazonServiceException | IOException e) {
+        } catch (AmazonServiceException e) {
             throw new IllegalStateException("Illegal state exception",e);
         }
     }
 
     @Override
-    public List<String> getObjectsList(String bucketName) throws IOException {
+    public List<S3ObjectSummary> getObjectsList(String bucketName) {
         return fileStore.getObjectsList(bucketName);
     }
 

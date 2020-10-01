@@ -1,16 +1,17 @@
 package com.f5promotora.awsimageupload.api.controller.v1;
 
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.f5promotora.awsimageupload.api.controller.AwsS3Controller;
 import com.f5promotora.awsimageupload.api.domain.service.v1.AwsS3ServiceImpl;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -39,7 +40,7 @@ public class AwsS3ControllerImpl implements AwsS3Controller {
     @Override
     @GetMapping("/download")
     @ApiOperation(httpMethod = "GET", value = "Download the file by name in the bucket.", consumes = "multipart/form-data")
-    public ResponseEntity<byte[]> download(@RequestParam("fileName") String fileName) {
+    public ResponseEntity<Resource> download(@RequestParam("fileName") String fileName) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(new MediaType("application", "force-download"));
         headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="+fileName);
@@ -48,7 +49,7 @@ public class AwsS3ControllerImpl implements AwsS3Controller {
 
     @GetMapping
     @ApiOperation(httpMethod = "GET", value = "Get list all objects to bucket name.")
-    public ResponseEntity<List<String>> getObjectsList(@RequestParam("bucketName") String bucketName) throws IOException {
+    public ResponseEntity<List<S3ObjectSummary>> getObjectsList(@RequestParam("bucketName") String bucketName) {
         return ResponseEntity.ok().body(awsS3ServiceImpl.getObjectsList(bucketName));
     }
 
