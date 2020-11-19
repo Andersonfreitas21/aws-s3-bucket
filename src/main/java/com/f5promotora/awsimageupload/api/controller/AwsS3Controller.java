@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface AwsS3Controller {
-    void upload(MultipartFile file);
-    ResponseEntity<Resource> download(String fileName);
+  String upload(MultipartFile file);
+
+  ResponseEntity<Resource> download(String fileName);
 }

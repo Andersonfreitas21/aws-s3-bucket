@@ -1,17 +1,15 @@
 package com.f5promotora.awsimageupload.bucket;
 
 public enum BucketName {
+  PROFILE_IMAGE("aws-image-upload-test");
 
-    PROFILE_IMAGE("aws-image-upload-test");
+  private final String bucketName;
 
-    private final String bucketName;
+  BucketName(String bucketName) {
+    this.bucketName = bucketName;
+  }
 
-    BucketName(String bucketName) {
-        this.bucketName = bucketName;
-    }
-
-    public String getBucketName() {
-        return bucketName;
-    }
-
+  public String getBucketName() {
+    return bucketName;
+  }
 }
