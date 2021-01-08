@@ -58,7 +58,7 @@ public class FileStore {
               fileName,
               Date.from(
                   LocalDateTime.now()
-                      .plusHours(1)
+                      .plusDays(7)
                       .atZone(ZoneId.of("America/Fortaleza"))
                       .toInstant()))
           .toString();
